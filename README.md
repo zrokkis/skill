@@ -1,6 +1,5 @@
 # Prompt Format MCP Server
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
 ![MCP](https://img.shields.io/badge/MCP-Supported-orange.svg)
 
@@ -156,7 +155,3 @@ python3 ag_indexer.py
     4.  生成一段**即开即用**的专家级提示词全文。
 
 ---
-
-## 6. 许可证 (License)
-
-本项目采用 MIT 许可证。
