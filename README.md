@@ -24,25 +24,40 @@
 *   **计算框架 (Compute Framework)**: 优先调用 Mac 本地 **Metal Performance Shaders (MPS)** 进行 GPU 加速。
 *   **路由算法 (Routing Algorithm)**: 基于余弦相似度 (Cosine Similarity) 的 Top-K 检索算法。
 
-## 4. 自动化流水线 (Workflow Automation)
+## 4. 快速安装 (Quick Start)
 
-### 4.1 索引构建 (Indexing)
-当框架资产发生变更时，需运行索引脚本以同步向量空间：
+为了确保环境隔离与模型自动下载，请执行以下命令完成一键初始化：
+
 ```bash
-# 路径: mcp_service/server/prompt_py_router/
-python3 ag_indexer.py
+cd mcp_service/server/prompt_py_router/
+chmod +x setup.sh
+./setup.sh
 ```
 
-### 4.2 MCP 服务接入 (Integration)
-在集成环境中配置以下核心节点（请确保指向绝对路径）：
+> **注意**: 首次运行 `./setup.sh` 会从 Hugging Face 下载约 1GB 的向量模型，请保持网络畅通。
+
+## 5. IDE 集成配置 (IDE Integration)
+
+初始化完成后，脚本会输出两个关键路径。请将它们填入您的 MCP 配置文件中（如 `mcp_config.json` 或 Cursor 设置）：
+
+### 5.1 配置模板 (JSON)
 ```json
 "prompt_format": {
-  "command": "/Users/a58/work/skills/mcp_service/server/prompt_py_router/venv/bin/python",
-  "args": ["/Users/a58/work/skills/mcp_service/server/prompt_py_router/router_cli.py"]
+  "command": "[PASTE_PYTHON_PATH_HERE]",
+  "args": ["[PASTE_ROUTER_CLI_PATH_HERE]"]
 }
 ```
 
-## 5. 交互协议 (Interaction Protocol)
+## 6. 常见问题 (FAQ)
+
+*   **Q: 运行失败，提示 `ModuleNotFoundError`？**
+    *   A: 请确保您使用的是虚拟环境中的 Python 路径（即 `venv/bin/python`），而非系统自带的 Python。
+*   **Q: 下载模型太慢？**
+    *   A: 首次运行需要连接外网。若在中国境内，建议配置镜像源或使用科学上网工具。
+*   **Q: 如何更新 Prompt 框架资产？**
+    *   A: 直接在 `mcp_service/assets/expert_frameworks/` 中增删文件，系统在下次启动时会自动触发增量索引同步。
+
+## 7. 交互协议 (Interaction Protocol)
 
 本项目提供两大核心 MCP 工具，极大提升 Prompt 编写效率：
 

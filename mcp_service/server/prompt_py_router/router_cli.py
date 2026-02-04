@@ -24,7 +24,9 @@ def get_resources():
         _model = SentenceTransformer(MODEL_NAME)
     if _data is None:
         if not os.path.exists(CACHE_FILE):
-            raise FileNotFoundError(f"Index file {CACHE_FILE} not found. Please run ag_indexer.py first.")
+            print(f"⚠️ Index not found at {CACHE_FILE}. Building index now...")
+            from ag_indexer import build
+            build()
         with open(CACHE_FILE, 'rb') as f:
             _data = pickle.load(f)
     return _model, _data
