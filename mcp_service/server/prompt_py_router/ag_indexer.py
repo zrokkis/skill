@@ -10,9 +10,21 @@ CACHE_FILE = os.path.join(CURRENT_DIR, "skills_cache.pkl")
 
 MODEL_NAME = 'paraphrase-multilingual-mpnet-base-v2'
 
+def get_model_path():
+    """优先级: 环境变量 -> 内置目录 -> 远程"""
+    env_path = os.environ.get("PEER_MODEL_PATH")
+    if env_path and os.path.exists(env_path): return env_path
+    
+    local_path = os.path.join(os.path.dirname(CURRENT_DIR), "../../models", MODEL_NAME)
+    if os.path.exists(local_path): return local_path
+    
+    return MODEL_NAME
+
 def build():
-    # 使用高阶多语言模型，提供 768 维度，精度更高
-    model = SentenceTransformer(MODEL_NAME)
+    # 优先加载本地模型
+    model_path = get_model_path()
+    print(f"📦 Indexing with model from: {model_path}")
+    model = SentenceTransformer(model_path)
     skills_data, descriptions = [], []
 
     for root, _, files in os.walk(SKILLS_DIR):

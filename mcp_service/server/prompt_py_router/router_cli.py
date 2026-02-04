@@ -12,16 +12,30 @@ mcp = FastMCP("Prompt Router Service")
 # 路径配置
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 CACHE_FILE = os.path.join(CURRENT_DIR, "skills_cache.pkl")
-MODEL_NAME = 'paraphrase-multilingual-mpnet-base-v2'
-
 # 全局变量，懒加载
 _model = None
 _data = None
 
+MODEL_NAME = 'paraphrase-multilingual-mpnet-base-v2'
+
+def get_model_path():
+    """获取模型路径逻辑：优先级 1.环境变量 -> 2.项目内置 models/ -> 3.远程下载"""
+    env_path = os.environ.get("PEER_MODEL_PATH")
+    if env_path and os.path.exists(env_path):
+        return env_path
+    
+    local_path = os.path.join(os.path.dirname(CURRENT_DIR), "models", MODEL_NAME)
+    if os.path.exists(local_path):
+        return local_path
+    
+    return MODEL_NAME
+
 def get_resources():
     global _model, _data
     if _model is None:
-        _model = SentenceTransformer(MODEL_NAME)
+        model_path = get_model_path()
+        print(f"📦 Loading model from: {model_path}")
+        _model = SentenceTransformer(model_path)
     if _data is None:
         if not os.path.exists(CACHE_FILE):
             print(f"⚠️ Index not found at {CACHE_FILE}. Building index now...")
