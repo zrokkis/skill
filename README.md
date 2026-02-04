@@ -62,7 +62,9 @@ export PEER_MODEL_PATH="/Users/yourname/models/paraphrase-multilingual-mpnet-bas
 
 ## 6. 常见问题 (FAQ)
 
-*   **Q: 运行失败，提示 `ModuleNotFoundError`？**
+*   **Q: 如何确认我的模型路径配置是否生效？**
+    *   A: 运行 `python3 mcp_service/server/prompt_py_router/diagnostic_test.py`。该脚本会自动模拟不同场景，验证系统是否能正确识别您的本地模型或环境变量。
+
     *   A: 请确保您使用的是虚拟环境中的 Python 路径（即 `venv/bin/python`），而非系统自带的 Python。
 *   **Q: 下载模型太慢？**
     *   A: 首次运行需要连接外网。若在中国境内，建议配置镜像源或使用科学上网工具。
