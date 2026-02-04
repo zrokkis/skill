@@ -154,5 +154,7 @@ cython_debug/
 # macOS
 .DS_Store
 
-# github
-github/
+# archive
+archive/
+
+*.pkl

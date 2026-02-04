@@ -1,157 +1,58 @@
-# Prompt Format MCP Server
+# Prompt Engineering Expert Router (PEER)
 
-![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
-![MCP](https://img.shields.io/badge/MCP-Supported-orange.svg)
+![System Status](https://img.shields.io/badge/Status-Operational-success)
+![Asset Count](https://img.shields.io/badge/Expert_Frameworks-56-blueviolet)
+![Architecture](https://img.shields.io/badge/Architecture-MCP_Service-blue)
 
-## 1. 概述 (Overview)
+## 1. 核心定义 (Core Definition)
 
-`prompt_format` 是一个基于 **模型上下文协议 (Model Context Protocol, MCP)** 的高阶提示词路由服务。其核心逻辑是通过 **语义搜索 (Semantic Search)** 技术，从包含 50+ 种专家级提示词框架的知识库中，为用户的原始需求匹配最适配的逻辑框架，并自动编译为开箱即用的**深度增强提示词 (Enhanced Prompts)**。
+**Prompt Engineering Expert Router (PEER)** 是一套基于 **模型上下文协议 (Model Context Protocol, MCP)** 构建的认知增强引擎。它通过 **检索增强生成 (Retrieval-Augmented Generation, RAG)** 技术，将零散的用户需求与结构化的高阶提示词框架进行动态映射，旨在实现指令集从“草稿级”到“专家级”的自动化跃迁。
 
-## 2. 核心架构 (Architecture)
+## 2. 架构设计 (System Architecture)
 
-*   **/prompt**: 知识库目录，包含专家级提示词框架的 `SKILL.md` 定义。
-*   **/prompt_py_router**: 逻辑路由引擎。
+本项目遵循**职能解耦 (Functional Decoupling)** 原则，采用三层目录体系：
 
-## 3. 安装指南 (Installation)
+| 模块 | 路径 | 核心职能 |
+| :--- | :--- | :--- |
+| **Logic Engine** | `mcp_service/server/prompt_py_router/` | 负责语义搜索、向量编码及 MCP 协议分发。 |
+| **Asset Library** | `mcp_service/assets/expert_frameworks/` | 存储 50+ 套包含 YAML 元数据的原子化 Prompt 框架。 |
+| **Knowledge Base**| `精选知识库/` | 收录由 Erin 亲自调研产出的“第一手业务资产”。 |
 
-### 3.1 项目获取
+## 3. 技术路线 (Technical Stack)
+
+*   **向量模型 (Embedding Model)**: 使用 `paraphrase-multilingual-mpnet-base-v2`，支持多语言语义对齐。
+*   **计算框架 (Compute Framework)**: 优先调用 Mac 本地 **Metal Performance Shaders (MPS)** 进行 GPU 加速。
+*   **路由算法 (Routing Algorithm)**: 基于余弦相似度 (Cosine Similarity) 的 Top-K 检索算法。
+
+## 4. 自动化流水线 (Workflow Automation)
+
+### 4.1 索引构建 (Indexing)
+当框架资产发生变更时，需运行索引脚本以同步向量空间：
 ```bash
-git clone https://github.com/zrokkis/skills.git
-cd skills/prompt_py_router
-```
-
-### 3.2 依赖安装 (二选一)
-
-#### 方案 A: 全局安装 (推荐：配置简单)
-直接将依赖安装至系统全局 Python 环境中：
-```bash
-pip3 install mcp sentence-transformers torch scikit-learn numpy
-```
-
-#### 方案 B: 虚拟环境安装 (推荐：环境隔离)
-在项目目录下创建独立环境，避免干扰其他项目：
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip3 install mcp sentence-transformers torch scikit-learn numpy
-```
-
-### 3.3 构建索引
-在首次运行前，需对知识库进行向量化处理：
-```bash
-# 若使用虚拟环境，请先激活或使用 venv/bin/python3
+# 路径: mcp_service/server/prompt_py_router/
 python3 ag_indexer.py
 ```
 
-## 4. IDE 与 MCP 集成 (Integration)
-
-请将下文中的 `/path/to/project` 替换为您本地仓库的**实际绝对路径**。
-
-### 4.1 Cursor 配置
-1.  进入 `Settings` -> `Models` -> `MCP`。
-2.  点击 `+ Add New MCP Server`。
-3.  根据您的安装方案选择配置：
-
-**方案 A (全局 Python):**
+### 4.2 MCP 服务接入 (Integration)
+在集成环境中配置以下核心节点（请确保指向绝对路径）：
 ```json
-{
-  "mcpServers": {
-    "prompt_format": {
-      "command": "python3",
-      "args": ["/path/to/project/prompt_py_router/router_cli.py"]
-    }
-  }
+"prompt_format": {
+  "command": "/Users/a58/work/skills/mcp_service/server/prompt_py_router/venv/bin/python",
+  "args": ["/Users/a58/work/skills/mcp_service/server/prompt_py_router/router_cli.py"]
 }
 ```
 
-**方案 B (虚拟环境 - 推荐):**
-```json
-{
-  "mcpServers": {
-    "prompt_format": {
-      "command": "/path/to/project/prompt_py_router/venv/bin/python3",
-      "args": ["/path/to/project/prompt_py_router/router_cli.py"]
-    }
-  }
-}
-```
+## 5. 交互协议 (Interaction Protocol)
 
-### 4.2 Antigravity 配置
-在您的 MCP 配置文件中添加以下内容：
+本项目提供两大核心 MCP 工具，极大提升 Prompt 编写效率：
 
-**方案 A (全局 Python):**
-```json
-{
-  "mcpServers": {
-    "prompt_format": {
-      "command": "python3",
-      "args": ["/path/to/project/prompt_py_router/router_cli.py"],
-      "env": {
-        "PYTHONPATH": "/path/to/project/prompt_py_router"
-      }
-    }
-  }
-}
-```
-
-**方案 B (虚拟环境 - 推荐):**
-```json
-{
-  "mcpServers": {
-    "prompt_format": {
-      "command": "/path/to/project/prompt_py_router/venv/bin/python3",
-      "args": ["/path/to/project/prompt_py_router/router_cli.py"],
-      "env": {
-        "PYTHONPATH": "/path/to/project/prompt_py_router"
-      }
-    }
-  }
-}
-```
-
-### 4.3 Claude Desktop 配置
-编辑 `~/Library/Application Support/Claude/claude_desktop_config.json`:
-
-**方案 A (全局 Python):**
-```json
-{
-  "mcpServers": {
-    "prompt_format": {
-      "command": "python3",
-      "args": ["/path/to/project/prompt_py_router/router_cli.py"]
-    }
-  }
-}
-```
-
-**方案 B (虚拟环境 - 推荐):**
-```json
-{
-  "mcpServers": {
-    "prompt_format": {
-      "command": "/path/to/project/prompt_py_router/venv/bin/python3",
-      "args": ["/path/to/project/prompt_py_router/router_cli.py"]
-    }
-  }
-}
-```
-
-## 5. 使用方式 (Usage)
-
-成功集成 MCP 后，您可以在 IDE (如 Cursor, Antigravity) 的辅助对话栏中直接通过工具调用（Tools/Plugins）或自然语言唤起以下功能：
-
-### 🛠️ 工具 1: `search_skill`
-**场景**：当您不确定哪个框架最适合您的任务时，先进行检索。
-*   **输入参数**: `query` (您的原始需求，如：“我想写一篇关于 AI 伦理的反驳文”)。
-*   **效果**: AI 将返回前 3 个最匹配的 Prompt 框架名称、置信度以及该框架的核心逻辑描述。
-
-### 🛠️ 工具 2: `prompt` (核心推荐)
-**场景**：直接获取经过框架增强后的终极提示词。
-*   **输入参数**: `query` (您的业务需求)。
-*   **效果**: AI 将自动执行以下逻辑：
-    1.  语义识别您的需求。
-    2.  从 50+ 框架中选出最优解。
-    3.  **自动编译**：将框架的指令体系、专家角色设定与您的需求进行深度融合。
-    4.  生成一段**即开即用**的专家级提示词全文。
+1.  **`search_skill(query)`**: 输出语义最接近的 Top-3 框架及其应用场景说明。
+2.  **`prompt(query)`**: **[闭环工具]**。自动检索 Top-1 框架并在内存中完成模板编译，直接输出可直接交付给 LLM 的终极指令。
 
 ---
+
+> **⚠ 资产保护协议 (Knowledge Asset Protection)**:
+> 严禁执行任何概括性或抽象化的合并操作。请保持文档的‘原子化’（Atomicity），确保每一个具体的业务 ID 和 Key 对照表处于随时可被全局搜索的状态。
+
+**Maintainer**: Erin
+**Last Updated**: 2026-02-04
