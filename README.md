@@ -24,31 +24,25 @@
 *   **计算框架 (Compute Framework)**: 优先调用 Mac 本地 **Metal Performance Shaders (MPS)** 进行 GPU 加速。
 *   **路由算法 (Routing Algorithm)**: 基于余弦相似度 (Cosine Similarity) 的 Top-K 检索算法。
 
-## 4. 快速安装 (Quick Start)
+## 4. 极致部署 (Two-Step Deployment)
 
-为了确保环境隔离与模型自动下载，请执行以下命令完成一键初始化：
+为了实现真正的一站式体验，请按以下步骤操作：
 
+### Step 1: 自动化环境初始化
+在终端运行以下命令：
 ```bash
 cd mcp_service/server/prompt_py_router/
 chmod +x setup.sh
 ./setup.sh
 ```
+该脚本会自动完成：虚拟环境创建 -> 依赖安装 -> 模型检测 -> 环境索引。
 
-> **注意**: 首次运行 `./setup.sh` 会从 Hugging Face 下载约 1GB 的向量模型，请保持网络畅通。
+### Step 2: 注入 IDE 配置
+脚本运行结束时会输出一段 **JSON 配置**。请将其直接粘贴到您的 `mcp_config.json` 或 IDE 的 MCP 服务器设置中。
 
-## 5. IDE 集成配置 (IDE Integration)
+---
 
-初始化完成后，脚本会输出两个关键路径。请将它们填入您的 MCP 配置文件中（如 `mcp_config.json` 或 Cursor 设置）：
-
-### 5.1 配置模板 (JSON)
-```json
-"prompt_format": {
-  "command": "[PASTE_PYTHON_PATH_HERE]",
-  "args": ["[PASTE_ROUTER_CLI_PATH_HERE]"]
-}
-```
-
-## 6. 离线模式与网络受限环境 (Offline Support)
+## 5. 离线模式 (Offline Support)
 
 若您的开发环境无法访问 Hugging Face，请遵循以下步骤手动配置模型：
 

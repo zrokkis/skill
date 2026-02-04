@@ -1,44 +1,32 @@
-
-# Triggering reload for high-dimensional model
 import os
 import pickle
 import re
 from mcp.server.fastmcp import FastMCP
 from sentence_transformers import SentenceTransformer, util
 
-# 初始化 MCP Server
 mcp = FastMCP("Prompt Router Service")
 
-# 路径配置
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 CACHE_FILE = os.path.join(CURRENT_DIR, "skills_cache.pkl")
-# 全局变量，懒加载
+MODEL_NAME = 'paraphrase-multilingual-mpnet-base-v2'
+
 _model = None
 _data = None
 
-MODEL_NAME = 'paraphrase-multilingual-mpnet-base-v2'
-
 def get_model_path():
-    """获取模型路径逻辑：优先级 1.环境变量 -> 2.项目内置 models/ -> 3.远程下载"""
     env_path = os.environ.get("PEER_MODEL_PATH")
-    if env_path and os.path.exists(env_path):
-        return env_path
-    
+    if env_path and os.path.exists(env_path): return env_path
     local_path = os.path.join(os.path.dirname(CURRENT_DIR), "models", MODEL_NAME)
-    if os.path.exists(local_path):
-        return local_path
-    
+    if os.path.exists(local_path): return local_path
     return MODEL_NAME
 
 def get_resources():
     global _model, _data
     if _model is None:
         model_path = get_model_path()
-        print(f"📦 Loading model from: {model_path}")
         _model = SentenceTransformer(model_path)
     if _data is None:
         if not os.path.exists(CACHE_FILE):
-            print(f"⚠️ Index not found at {CACHE_FILE}. Building index now...")
             from ag_indexer import build
             build()
         with open(CACHE_FILE, 'rb') as f:
@@ -47,17 +35,8 @@ def get_resources():
 
 @mcp.tool()
 def search_skill(query: str, top_k: int = 3) -> str:
-    """
-    根据用户需求语义，从 50+ 个 Prompt 框架中检索最匹配的框架。
-    输入 query 为用户的原始需求（如：帮我制定计划、我想写议论文）。
-    返回值包含匹配度、框架名称及 SKILL.md 路径。
-    """
     model, data = get_resources()
-    
-    # 1. 向量化查询
     query_embedding = model.encode(query, convert_to_tensor=True)
-    
-    # 2. 语义搜索
     hits = util.semantic_search(query_embedding, data['embeddings'], top_k=top_k)
     top_results = hits[0]
     
@@ -65,45 +44,37 @@ def search_skill(query: str, top_k: int = 3) -> str:
     for hit in top_results:
         score = hit['score']
         meta = data['metadata'][hit['corpus_id']]
+        rel_path = meta['path']
+        abs_path = os.path.abspath(os.path.join(CURRENT_DIR, rel_path))
         
-        # 尝试提取描述预览
         desc = "No description available"
-        if os.path.exists(meta['path']):
-            with open(meta['path'], 'r', encoding='utf-8') as f:
+        if os.path.exists(abs_path):
+            with open(abs_path, 'r', encoding='utf-8') as f:
                 content = f.read()
                 match = re.search(r'description:\s*(.*?)\n', content)
-                if match:
-                    desc = match.group(1).strip()
+                if match: desc = match.group(1).strip()
         
-        results.append(f"分数: {score:.4f}\n名称: {meta['name']}\n路径: {meta['path']}\n描述: {desc}\n" + "-"*20)
-    
+        results.append(f"分数: {score:.4f}\n名称: {meta['name']}\n路径: {abs_path}\n描述: {desc}\n" + "-"*20)
     return "\n".join(results)
 
 @mcp.tool()
 def prompt(query: str) -> str:
-    """
-    语义匹配最合适的 Prompt 框架，并根据该框架的核心逻辑，将用户的输入自动化编译为高阶提示词。
-    输入 query 为您的原始业务或写作需求。
-    返回值是经过框架加持后的、即开即用的终极提示词。
-    """
     model, data = get_resources()
-    
-    # 1. 寻找最强匹配 (Top-1)
     query_embedding = model.encode(query, convert_to_tensor=True)
     hits = util.semantic_search(query_embedding, data['embeddings'], top_k=1)
     best_hit = hits[0][0]
     meta = data['metadata'][best_hit['corpus_id']]
     
-    # 2. 读取框架核心规则
-    prompt_file = meta['path']
+    # 还原绝对路径
+    rel_path = meta['path']
+    prompt_file = os.path.abspath(os.path.join(CURRENT_DIR, rel_path))
+    
     if not os.path.exists(prompt_file):
         return f"错误：找不到框架文件 {prompt_file}"
         
     with open(prompt_file, 'r', encoding='utf-8') as f:
         full_content = f.read()
     
-    # 3. 构造编译后的全量提示词 (Prompt Compilation)
-    # 我们将框架的指令体系与用户的原始需求进行强绑定
     optimized_response = f"""
 ### 🎯 推荐框架：{meta['name'].replace('_', ' ').upper()}
 **匹配置信度**: {best_hit['score']:.4f}
