@@ -12,7 +12,8 @@ def get_model_path():
     """优先级: 环境变量 -> 内置目录 -> 远程"""
     env_path = os.environ.get("PEER_MODEL_PATH")
     if env_path and os.path.exists(env_path): return env_path
-    local_path = os.path.join(os.path.dirname(CURRENT_DIR), "models", MODEL_NAME)
+    # 统一路径：mcp_service/models/
+    local_path = os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "models", MODEL_NAME)
     if os.path.exists(local_path): return local_path
     return MODEL_NAME
 

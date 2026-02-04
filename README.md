@@ -46,18 +46,21 @@ chmod +x setup.sh
 
 若您的开发环境无法访问 Hugging Face，请遵循以下步骤手动配置模型：
 
-### 6.1 手动下载模型
-1.  在有网环境访问 [Hugging Face Models](https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2)。
-2.  下载该模型文件夹下的所有内容。
-3.  将文件夹重命名为 `paraphrase-multilingual-mpnet-base-v2` 并放置在项目的 `mcp_service/models/` 目录下。
+### 5.1 手动下载模型 (推荐)
+1.  在有网环境下载模型。
+2.  在项目根目录下创建 `mcp_service/models/` 文件夹。
+3.  将模型完整文件夹放入其中，路径结构应为：`mcp_service/models/paraphrase-multilingual-mpnet-base-v2/config.json` 等。
 
-### 6.2 环境变量指定 (可选)
-您也可以通过设置环境变量 `PEER_MODEL_PATH` 强制指向任意本地模型路径：
+### 5.2 环境变量指定 (高级)
+若不想在项目内放置模型，可使用环境变量。**注意：必须使用系统绝对路径**，以确保在不同工作目录下启动时均能正确加载。
 ```bash
-export PEER_MODEL_PATH="/your/local/model/path"
+# MacOS/Linux 示例
+export PEER_MODEL_PATH="/Users/yourname/models/paraphrase-multilingual-mpnet-base-v2"
 ```
 
-## 7. 常见问题 (FAQ)
+---
+
+## 6. 常见问题 (FAQ)
 
 *   **Q: 运行失败，提示 `ModuleNotFoundError`？**
     *   A: 请确保您使用的是虚拟环境中的 Python 路径（即 `venv/bin/python`），而非系统自带的 Python。

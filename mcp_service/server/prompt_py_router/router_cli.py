@@ -16,7 +16,8 @@ _data = None
 def get_model_path():
     env_path = os.environ.get("PEER_MODEL_PATH")
     if env_path and os.path.exists(env_path): return env_path
-    local_path = os.path.join(os.path.dirname(CURRENT_DIR), "models", MODEL_NAME)
+    # 统一探测项目根目录下的 mcp_service/models/
+    local_path = os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "models", MODEL_NAME)
     if os.path.exists(local_path): return local_path
     return MODEL_NAME
 
